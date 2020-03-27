@@ -1,6 +1,17 @@
 import * as d3 from "d3"
 import * as topojson from "topojson"
 
+var maps = [{
+	"label" : "Victoria",
+	"centre" : [145.5,-36.5],
+	"zoom" : 5.8,
+	"active" : true
+},{
+	"label" : "Melbourne",
+	"centre" : [145,-37.8],
+	"zoom" : 40,
+	"active" : false
+}]
 
 function init(sheets, vic, places) {
 
@@ -19,9 +30,13 @@ function init(sheets, vic, places) {
 	var width = document.querySelector("#vicCoronaMapContainer").getBoundingClientRect().width
 	var height = width*0.7
 
+	var ratio = (maps[0].active) ? maps[0].zoom : maps[1].zoom
+
+	var centre = (maps[0].active) ? maps[0].centre : maps[1].centre
+
 	var projection = d3.geoMercator()
-                    .center([145.5,-36.5])
-                    .scale(width*5.8)
+                    .center(centre)
+                    .scale(width*ratio)
                     .translate([width/2,height/2])
 
 	container.select("#vicMap").remove()
@@ -197,6 +212,24 @@ Promise.all([
 		])
 		.then((results) =>  {
 			init(results[0], results[1], results[2])
+
+			d3.select("#zoom").on("click", function() {
+
+				if (maps[0].active) {
+					maps[0].active = false;
+					maps[1].active = true;
+					d3.select(this).html("Zoom to Victoria")
+				} else {
+					maps[0].active = true;
+					maps[1].active = false;
+					d3.select(this).html("Zoom to Melbourne")
+				}
+
+				init(results[0], results[1], results[2])
+
+			})
+
+
 			var to=null
 			var lastWidth = document.querySelector("#vicCoronaMapContainer").getBoundingClientRect()
 			window.addEventListener('resize', function() {
