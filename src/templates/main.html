@@ -1,22 +1,31 @@
 <div class="interactive-wrapper vicMap">
     <div id="outer-wrapper" class="showcase">
-			<div class="row">
 
-			<div class='chartTitle' id="chartTitle">Confirmed cases of Covid-19 in Victoria</div>
-			<div class='subTitle' id="subTitle">Showing the cumulative number of confirmed cases by local government area. Data last updated <span id="lastUpdated"></span></div>
-			<div class="controls"> 
-				<div id="zoom" class="btn">Zoom to Melbourne</div>
+			<div class='chartTitle row' id="chartTitle">Where Covid-19 cases are increasing and decreasing in Melbourne</div>
+			<div class='subTitle row' id="subTitle">Showing the trend in reported cases by local government area, for areas with more than five cases in the past fortnight. The trend is determined using the linear increase or decrease in cases over the past two weeks. Last updated: <span id="lastUpdated"></span></div>
+			
+			<div class="row">
+				
+				<div class="col50">
+					<div id="keyTitle">Trend in cases</div>
+					<div id="keyDiv"></div>
+				</div>
+
+				<div class="col50">
+					<div id="keyTitle">Total recent cases</div>
+					<div id="keyDiv2"></div>
+				</div>	
 			</div>
+			<div class="row chartSans" id="vicCoronaMapContainer">
+					
 			</div>
-			<div class="row chartSans" id="vicCoronaMapContainer">	
-					<div id="keyDiv" class="mobHide"></div>
-			</div>
+
 			<div class='footer offset'>
 				<div id="footerAnnotations">
 
 				</div>	
 				
-				<span id="footnote"></span> Guardian graphic <span id="sourceText">DHHS</span>
+				<span id="footnote"></span> Guardian graphic | Source: Guardian Australia analysis of DHHS data
 			</div>	
 			
 	</div>

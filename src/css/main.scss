@@ -1,9 +1,10 @@
 @import "mq";
 @import "fonts";
 @import "palette";
+@import "grid";
 
 // Uncomment for embeds
-@import "embed";
+// @import "embed";
 // Uncomment for full screen (including immersive article main media)
 //@import "fullscreen";
 
@@ -18,47 +19,43 @@
 		/*background-color: lightgrey;*/
 	}
 
+	.row {
+		margin-bottom: 10px;
+	}
+
 	.mapCircle {
-		stroke:#c70000;
+		stroke:#000;
 		stroke-opacity:1;
-		fill:#E9C6BC;
-		fill-opacity:0.2;
+		/*fill:none;*/
+		fill-opacity:0.8;
+		pointer-events: none;
+	}
+
+	.keyCircle {
+		stroke:#000;
+		stroke-opacity:1;
+		fill:none;
 	}
 
 	.lga {
 	    stroke: #fff;
 	    stroke-opacity: 1;
-	    fill: #eaeaea;
-	    fill-opacity: 1;
+	    /*fill: #eaeaea;
+	    fill-opacity: 1;*/
 	}
+
+
 
 	.label {
 		    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
 		    font-size: 14px;
 		    font-weight: 900;
-	}
-
-	#keyDiv {
-		position: absolute;
-		top:5%;
-		right:1%;
-		width:100px;
-		height:100px;
-		/*background-color: red;*/
+		    pointer-events: none;
 	}
 
 	#vicCoronaMapContainer {
 		position: relative;
 	}
-}
-
-.interactive-wrapper {
-
-	border-top: 1px solid #dcdcdc;
-    border-bottom: 1px solid #dcdcdc;
-    padding-top: 20px;
-    padding-bottom: 5px;
-    background-color: #FFF;
 
 	.axis path,
 	.axis line {
@@ -73,7 +70,7 @@
 	    font-weight: 600;
 	    -webkit-font-smoothing: antialiased;
 	    color: #333333;
-	    font-family: "GH Guardian Headline", Georgia, serif;
+	    font-family: "Guardian Headline Full", Georgia, serif;
 	    margin-bottom: 2px;
 	}
 
@@ -123,8 +120,18 @@
 	}
 
 	.keyText {
-		font-size:0.8em;
-		margin-left:5px;
+		font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+		fill:#767676;
+	}
+
+	#keyTitle {
+		font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+		color: #000;
+		font-size: 16px;
+	}
+
+	.keyLabel {
+		font-size: 12px;
 	}
 
 	#chartKey div {
@@ -135,20 +142,20 @@
 		margin-left: 0px;
 	}
 
+	#keyDiv, #keyDiv2 {
+		width: 100%;
+		min-width: 100%;
+	}
+
 	.keyDiv {
 		display: inline-block;
+
 	}
 
 	.keyDiv .keyCircle:first-of-type {
 	    margin-left:0;
 	}
 
-	.keyCircle {
-		width:12px;
-		height:12px;
-		border-radius: 50%;
-		display: inline-block;
-	}
 
 	.annotationTextMobile {
 		font-weight:bold;
@@ -169,15 +176,54 @@
 	} 
 
 	.tooltip {
-		font-size:16px;
-		pointer-events: none;	
-		border: 1px #000 solid;
-		padding:2px 5px 2px 5px;
-		color:#000;
-	}
+		background: #FFFFFF;
+		max-width:200px;
+		font-family: 'Guardian Text Sans Web',Arial;
+		padding:10px;
+		pointer-events: none;
+		border: 2px #000 solid;
+	}	
 
 	.line {
 		fill: none;
+	}
+
+	#zoom2 {
+		position: absolute;
+		left:5px;
+		top:5px;
+	}
+
+	.btn {
+	    background-color: #c70000;
+	    border-radius: 62.5rem;
+	    border: none;
+	    display: inline-block;
+	    outline: 0;
+	    box-sizing: border-box;
+	    font-size: 12px;
+	    line-height: 16px;
+	    font-family: 'Guardian Text Sans Web', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+	    color: #FFF;
+	    padding: 4px 10px;
+	    margin: 1px 1px;
+	    text-align: right;
+	    cursor:pointer;
+  		
+  	}
+
+ /* 	.btn {
+  		padding-left:2px;
+  		padding-right:2px;
+  	}*/
+
+	.btn:hover {
+		opacity: 0.7 !important;
+	}
+
+	.btn-selected {
+		background-color: #005689;
+		color: #FFF;
 	}
 
 	@media (max-width: 450px) {
@@ -187,6 +233,17 @@
 		}
 
 	}
-
 }
+
+.interactive-wrapper {
+
+	border-top: 1px solid #dcdcdc;
+    border-bottom: 1px solid #dcdcdc;
+    padding-top: 20px;
+    padding-bottom: 5px;
+    background-color: #FFF;
+}
+	
+
+
 
