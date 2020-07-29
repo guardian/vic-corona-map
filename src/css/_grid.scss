@@ -77,8 +77,14 @@ margin-right:1%;
 }
 
 @media (max-width: 750px) {
-.col50, .col10, .col20, .col30, .col70 {
+.col40  {
 width:100%;
+margin:0;
+margin-bottom:10px;
+}
+
+.col20, .col40.areas {
+	width:50%;
 margin:0;
 margin-bottom:5px;
 }

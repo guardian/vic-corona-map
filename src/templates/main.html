@@ -2,20 +2,31 @@
     <div id="outer-wrapper" class="showcase">
 
 			<div class='chartTitle row' id="chartTitle">Where Covid-19 cases are increasing and decreasing in Melbourne</div>
-			<div class='subTitle row' id="subTitle">Showing the trend in reported cases by local government area, for areas with more than five cases in the past fortnight. The trend is determined using the linear increase or decrease in cases over the past two weeks. Last updated: <span id="lastUpdated"></span></div>
+			<div class='subTitle row' id="subTitle">Showing the trend in reported cases by local government area, for areas with more than five cases in the past fortnight. The trend is determined using the weekly change over a rolling 7-day average of cases. The circles are sized by the total number of cases in the past 30 days. Last updated: <span id="lastUpdated"></span></div>
 			
 			<div class="row">
 				
-				<div class="col50">
+				<div class="col40">
 					<div id="keyTitle">Trend in cases</div>
 					<div id="keyDiv"></div>
 				</div>
 
-				<div class="col50">
+				<div class="col20">
 					<div id="keyTitle">Total recent cases</div>
 					<div id="keyDiv2"></div>
 				</div>	
+
+				<div class="col40 areas">
+					<div id="keyTitle">Areas</div>
+					<div id="keyDiv3"></div>
+				</div>	
 			</div>
+
+			<div class="row controls">
+				<div id="zoom2" class="btn">Zoom to Victoria</div>
+				<div id="togglePostcodes" class="btn">Toggle postcodes</div>
+				<div id="toggleCircles" class="btn">Toggle map circles</div>
+			</div>	
 			<div class="row chartSans" id="vicCoronaMapContainer">
 					
 			</div>
@@ -25,7 +36,7 @@
 
 				</div>	
 				
-				<span id="footnote"></span> Guardian graphic | Source: Guardian Australia analysis of DHHS data
+				<span id="footnote">Guardian graphic | Note: this graphic relies on Guardian Australia's analysis of cumulative LGA-level case figures published daily on the Department of Health and Human Services' (DHHS) dashboard <a href="https://app.powerbi.com/view?r=eyJrIjoiODBmMmE3NWQtZWNlNC00OWRkLTk1NjYtMjM2YTY1MjI2NzdjIiwidCI6ImMwZTA2MDFmLTBmYWMtNDQ5Yy05Yzg4LWExMDRjNGViOWYyOCJ9">here</a>. As figures are adjusted retrospectively by DHHS, numbers can be negative for some areas on some days. These negative figures have been excluded from the trend calculation. </span>
 			</div>	
 			
 	</div>

@@ -1,4 +1,5 @@
 @import "mq";
+@import "enhancer";
 @import "fonts";
 @import "palette";
 @import "grid";
@@ -45,6 +46,10 @@
 	}
 
 
+	.lga:hover {
+		/*stroke: #000;*/
+		fill-opacity: 0.6;
+	}
 
 	.label {
 		    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
@@ -130,6 +135,10 @@
 		font-size: 16px;
 	}
 
+	#postcodes {
+		pointer-events: none;
+	}
+
 	.keyLabel {
 		font-size: 12px;
 	}
@@ -188,10 +197,14 @@
 		fill: none;
 	}
 
-	#zoom2 {
+/*	#zoom2 {
 		position: absolute;
 		left:5px;
 		top:5px;
+	}*/
+
+	.controls div {
+		display: inline-block;
 	}
 
 	.btn {

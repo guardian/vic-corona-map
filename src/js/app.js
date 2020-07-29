@@ -2,7 +2,10 @@ import * as d3 from "d3"
 import * as topojson from "topojson"
 
 
-const infected = [3012,3021,3032,3038,3042,3046,3047,3055,3060,3064]
+const infected = [3031, 3051, 3012, 3021, 3032, 3038, 3042, 3046, 3047, 3055, 3060, 3064]
+
+var postcodesVisible = false
+var circlesOn = true
 
 var maps = [{
 	"label" : "Victoria",
@@ -16,22 +19,28 @@ var maps = [{
 	"active" : true
 }]
 
-function init(dataFeed, vic, places, postcodes, population, trend) {
-
+function init(dataFeed, vic, places, postcodes, population, trend, metro) {
+	console.log(metro)
 	const container = d3.select("#vicCoronaMapContainer")
 	var isMobile;
 	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-
+	var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 	if (windowWidth < 610) {
 			isMobile = true;
-	}	
+			maps[1].zoom = 50
+	}		
 
 	if (windowWidth >= 610){
 			isMobile = false;
 	}
 
 	var width = document.querySelector("#vicCoronaMapContainer").getBoundingClientRect().width
+	
 	var height = width*0.7
+	
+	if (windowHeight > windowWidth) {
+		height = width*1.3
+	}
 
 	var ratio = (maps[0].active) ? maps[0].zoom : maps[1].zoom
 
@@ -46,18 +55,26 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 	container.select(".tooltip").remove()
 
 	var data = dataFeed
-	var extent = d3.extent(dataFeed, d => +d.count)
+	var max = d3.max(dataFeed, d => +d.count)
 
-	// console.log(extent)
-	var lastUpdated = data[0].date
+	console.log(max)
+
+	var lastUpdated = trend[0].date
 
 	d3.select("#lastUpdated").text(lastUpdated)
 
-	extent = [1,200]
+	function roundHundred(value) {
+   		return Math.round(value/100)*100
+	}
+
+	var extent = [1,roundHundred(max)]
+
+	console.log(extent)
+
 	var mapData = d3.map(data, function(d) { return d.place; });
 	var mapTrend = d3.map(trend, function(d) { return d.lga; });
 
-	// console.log("trend",mapTrend)
+	console.log("trend",mapTrend)
 
 	vic.objects['vic-lga-2019'].geometries.forEach(function(d) {
 		// var entry = mapData.get(d.properties.LGA_NAME19)
@@ -66,15 +83,14 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 			var cases
 			if (mapData.get(d.properties.LGA_NAME19)['count'] == "1-4") {
 				cases = 2
-				
 			}
 
 			else {
 				cases = +mapData.get(d.properties.LGA_NAME19)['count']
-				
-	
 			}
+
 			d.properties.cases = cases
+
 			if (cases > 0) {
 					d.properties.casesPer100K = (cases / population[d.properties.LGA_NAME19]) * 100000
 				}
@@ -96,13 +112,13 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 		}
 
 		else {
-			d.properties.change = 0
+			d.properties.change = ""
 			d.properties.this_week = 0
 			d.properties.last_week = 0
 		}
 	})
 
-	// console.log(data)
+	console.log(vic.objects['vic-lga-2019'].geometries)
 
 	// var extent = d3.extent(vic.objects['vic-lga-2019'].geometries, d => { 
 	// 	if (d.properties.casesPer100K > 0) {
@@ -118,7 +134,7 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 
 	var divColors = d3.scaleThreshold()
 		.range(['#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4'].reverse())
-		.domain([-1.5,-1,-0.5,0,0.5,1,1.5])
+		.domain([-6,-4,-2,0,2,4,6])
 
 	function trendLang(slope) {
 		if (slope > 0) {
@@ -129,9 +145,15 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 			return "Decreasing"
 		}
 
-		else {
+		else if (slope === 0) {
+			return "No change"
+		}
+
+		else if (slope === "") {
 			return "Not enough cases"
 		}
+
+		
 	}
 
 	var svg = container.append("svg")	
@@ -156,12 +178,14 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 		.append("pattern")
 		 .attr('id', 'diagonalHatch')
 	    .attr('patternUnits', 'userSpaceOnUse')
-	    .attr('width', 4)
-	    .attr('height', 4)
-	  .append('path')
-	    .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
-	    .attr('stroke', '#000000')
-	    .attr('stroke-width', 1);
+	    .attr('width', 8)
+	    .attr('height', 8)
+	    .attr("patternTransform", "rotate(60)")
+	  .append('rect')
+	    .attr("width",1)
+	    .attr("height",8)
+	    .attr("transform", "translate(0,0)")
+	    .attr("fill", "#000")
 
 
 
@@ -214,7 +238,7 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 		rMax = 15
 	}
 
-	
+	// rMax = 15
 
 	const radius = d3.scaleSqrt()
 		.range([2, rMax])
@@ -230,34 +254,62 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 	    .enter().append("path")
 	        .attr("class", "lga")
 	        .attr("fill", (d) => {
-	        	
-	        	// if (d.properties.change != 0) {
-	        	// 	return divColors(d.properties.change)
-	        	// }
 
-	        	// else {
+	        	console.log(d.properties)
+	        	if (circlesOn) {
 	        		return "#eaeaea"
-	        	// }
+	        	}
+
+	        	else {
+	        		if (d.properties.change === "") {
+						return "#eaeaea"
+					}
+
+		        	else {
+		        		return divColors(d.properties.change)
+		        	}
+	        	}
+	 
 	        })
 	        .attr("stroke", "#bcbcbc")
 	        .attr("data-tooltip","")
 	        .attr("d", path)
 	        .on("mouseover", tooltipIn)
             .on("mouseout", tooltipOut)
-	        
+	          
 
-	// features.append("g")
-	//     .selectAll("path")
-	//     .attr("id","postcodes")
-	//     .data(postcodeGeoLockdown)
-	//     .enter().append("path")
-	//         // .attr("class", "diagonal-stripe-1")
-	//         .attr("fill", "url(#diagonalHatch)")
-	//         .attr("stroke", "#000")
-	//         .attr("data-tooltip","")
-	//         .attr("d", path);           
+	features.append("g")
+		.attr("id","postcodes")
+		.attr("opacity", d => {
+			if (postcodesVisible) {
+				return 1
+			}
+
+			else {
+				return 0 
+			}
+		})
+	    .selectAll("path")
+	    .data(postcodeGeoLockdown)
+	    .enter().append("path")
+	        .attr("fill", "url(#diagonalHatch)")
+	        .attr("stroke", "#000")
+	        .attr("data-tooltip","")
+	        .attr("d", path);           
 
 
+	features.append("g")
+	    .selectAll("path")
+	    .attr("id","metro-lockdown")
+	    .data(topojson.feature(metro,metro.objects.metro).features)
+	    .enter().append("path")
+	        // .attr("class", "diagonal-stripe-1")
+	        .attr("fill", "none")
+	        .attr("stroke", "#000")
+	        .style("stroke-dasharray", ("3, 2"))
+	        .attr("stroke-width", "2px")
+	        .attr("d", path);           
+        
 		 features.selectAll("text")
             .data(filterPlaces)
             .enter()
@@ -282,7 +334,14 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 			return d.centroid[0]
 		})
 		.attr("cy",d => d.centroid[1])
-		.attr("fill", d => divColors(d.change))
+		.attr("fill", d => { 
+			if (d.change === "") {
+				return "none"
+			}
+			else {
+				return divColors(d.change)
+			}
+		})
 		.attr("r", function(d) { 
 
 			if (d.cases > 0) {
@@ -292,13 +351,21 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 			else {
 				return 0
 			}
+		})
+		.style("visibility", d => {
+			if (circlesOn) {
+	        		return "visible"
+	        	}
+	        else {
+	        	return "hidden"
+	        }	
 		})    
 
 
 
    	d3.select("#keyDiv svg").remove();
 
-   	var keyWidth = document.querySelector("#keyDiv").getBoundingClientRect().width - 20
+   	var keyWidth = document.querySelector("#keyDiv").getBoundingClientRect().width
    	// console.log(keyWidth)
 
     var keySvg = d3.select("#keyDiv").append("svg")	
@@ -327,11 +394,23 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
     divColors.domain().forEach(function(d, i) {
 
             keySvg.append("text")
-            .attr("x", (i + 1) * keySquare)
-            .attr("text-anchor", "middle")
-            .attr("y", textHeight + 20)
-            .attr("class", "keyLabel keyText")
-            .text(d)
+	            .attr("x", (i + 1) * keySquare)
+	            .attr("text-anchor", "middle")
+	            .attr("y", textHeight + 20)
+	            .attr("class", "keyLabel keyText")
+	            .text(b => { 
+	            	if (d == 6) {
+	            		return ">6"
+	            	} 
+
+	            	else if (d == -6) {
+	            		return "<-6"
+	            	}
+
+	            	else {
+	            		return d
+	            	} 
+	            })
       
      
     })
@@ -353,7 +432,7 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 
     d3.select("#keyDiv2 svg").remove();
 
-    var keyWidth2 = document.querySelector("#keyDiv2").getBoundingClientRect().width - 20
+    var keyWidth2 = document.querySelector("#keyDiv2").getBoundingClientRect().width
 
     var key2offset = 20
 
@@ -389,7 +468,107 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 			.attr("y",45)
             .attr("class", "keyText keyLabel")
             .attr("text-anchor", "middle")
-            .text(extent[0])               
+            .text(extent[0]) 
+
+    d3.select("#keyDiv3 svg").remove();        
+
+    var keyWidth3 = document.querySelector("#keyDiv3").getBoundingClientRect().width
+
+    var keySvg3 = d3.select("#keyDiv3").append("svg")	
+	                .attr("width", keyWidth3)
+					.attr("height", 80)
+	                .attr("id", "key3")
+	                .attr("overflow", "hidden");  
+
+	keySvg3.append("rect")
+            .attr("x",1)
+			.attr("y",10)
+   			.attr("width", 30)
+   			.attr("height", 30)
+   			.attr("fill", "url(#diagonalHatch)")
+	        .attr("stroke", "#000")     
+
+	keySvg3.append("rect")
+            .attr("x",120)
+			.attr("y",10)
+   			.attr("width", 30)
+   			.attr("height", 30)
+   			.attr("fill", "none")
+	        .attr("stroke", "#000")
+	        .attr("stroke-width", 2)
+	        .attr('stroke-dasharray', '3,2')
+
+	 keySvg3.append("text")
+            .attr("x",0)
+			.attr("y",60)
+            .attr("class", "keyText keyLabel")
+            .text("Previously locked-")    
+
+     keySvg3.append("text")
+            .attr("x",0)
+			.attr("y",75)
+            .attr("class", "keyText keyLabel")
+            .text("down postcodes")   
+
+
+    keySvg3.append("text")
+            .attr("x",120)
+			.attr("y",60)
+            .attr("class", "keyText keyLabel")
+            .text("Metro Melbourne")    
+
+     keySvg3.append("text")
+            .attr("x",120)
+			.attr("y",75)
+            .attr("class", "keyText keyLabel")
+            .text("lockdown")                  
+
+
+    d3.select("#togglePostcodes").on("click", function() {  
+    
+    	var pc = d3.select("#postcodes")
+
+    	console.log(postcodesVisible)
+
+    	if (postcodesVisible) {
+    		pc.attr("opacity", 0)
+    		postcodesVisible = false
+    	}
+
+    	else {
+    		pc.attr("opacity", 1)
+    		postcodesVisible = true
+
+    	}
+
+    })      
+
+    d3.select("#toggleCircles").on("click", function() {  
+    
+    	if (circlesOn) {
+    		features.selectAll(".mapCircle").style("visibility", "hidden")
+    		features.selectAll(".lga").attr("fill", d=> {
+    			if (d.properties.change === "") {
+    				return "#eaeaea"
+						
+					}
+
+		        	else {
+						return divColors(d.properties.change)		        		
+		        	}
+    		})
+    			
+    		circlesOn = false
+    	}
+
+    	else {
+    		features.selectAll(".mapCircle").style("visibility", "visible")
+    		features.selectAll(".lga").attr("fill", "#eaeaea")
+    		circlesOn = true
+
+    	}
+
+    })  
 
 
 
@@ -420,20 +599,23 @@ function init(dataFeed, vic, places, postcodes, population, trend) {
 
             // console.log(d.properties)
             var html
-            if (d.properties.change != 0) {
-            	 html = `<b>${d.properties.LGA_NAME19}</b><br>
+            if (d.properties.change === "") {
+
+           		 html = `<b>${d.properties.LGA_NAME19}</b><br>
+            			Trend: ${trendLang(d.properties.change)}<br>
+            			Total in past 30 days: ${d.properties.cases}<br>
+            			`            	
+            }
+           
+           	else {
+
+           		 html = `<b>${d.properties.LGA_NAME19}</b><br>
             			Trend: ${trendLang(d.properties.change)}<br>
             			Cases in past 7 days: ${d.properties.this_week}<br>
             			Cases in previous 7 day period: ${d.properties.last_week}<br>
             			Total in past 30 days: ${d.properties.cases}<br>
             			`
-            }
-           
-           	else {
-           		 html = `<b>${d.properties.LGA_NAME19}</b><br>
-            			Trend: ${trendLang(d.properties.change)}<br>
-            			Total in past 30 days: ${d.properties.cases}<br>
-            			`
+
            	}
 
             d3.select(".tooltip").html(html).style("visibility", "visible");
@@ -454,10 +636,11 @@ Promise.all([
 		d3.json(`<%= path %>/assets/places_au.json`),
 		d3.json(`<%= path %>/assets/victoria.json`),
 		d3.json(`<%= path %>/assets/population.json`),
-		d3.json('https://interactive.guim.co.uk/2020/07/vic-corona-map/vicChange.json'),
+		d3.json('https://interactive.guim.co.uk/2020/07/vic-corona-map/vicChange-2.json'),
+		d3.json(`<%= path %>/assets/single-area-lockdown.json`),
 		])
 		.then((results) =>  {
-			init(results[0], results[1], results[2], results[3], results[4], results[5])
+			init(results[0], results[1], results[2], results[3], results[4], results[5], results[6])
 
 			d3.select("#zoom2").on("click", function() {
 
@@ -471,7 +654,7 @@ Promise.all([
 					d3.select(this).html("Zoom to Melbourne")
 				}
 
-				init(results[0], results[1], results[2], results[3], results[4], results[5])
+				init(results[0], results[1], results[2], results[3], results[4], results[5], results[6])
 
 			})
 
@@ -483,7 +666,7 @@ Promise.all([
 				if (lastWidth != thisWidth) {
 					window.clearTimeout(to);
 					to = window.setTimeout(function() {
-						    init(results[0], results[1], results[2], results[3], results[4], results[5])
+						    init(results[0], results[1], results[2], results[3], results[4], results[5], results[6])
 						}, 100)
 				}
 			
