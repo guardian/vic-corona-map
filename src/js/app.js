@@ -338,6 +338,11 @@ function init(dataFeed, vic, places, postcodes, population, trend, metro) {
 			if (d.change === "") {
 				return "none"
 			}
+
+			else if (d.change === 0) {
+				return "none"
+			}
+
 			else {
 				return divColors(d.change)
 			}
@@ -610,9 +615,9 @@ function init(dataFeed, vic, places, postcodes, population, trend, metro) {
            	else {
 
            		 html = `<b>${d.properties.LGA_NAME19}</b><br>
-            			Trend: ${trendLang(d.properties.change)}<br>
-            			Cases in past 7 days: ${d.properties.this_week}<br>
-            			Cases in previous 7 day period: ${d.properties.last_week}<br>
+            			Trend*: ${trendLang(d.properties.change)}<br>
+            			Total cases, past 7 days: ${d.properties.this_week}<br>
+            			Total cases, prev. 7 day period: ${d.properties.last_week}<br>
             			Total in past 30 days: ${d.properties.cases}<br>
             			`
 
