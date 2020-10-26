@@ -20,7 +20,7 @@ var maps = [{
 }]
 
 function init(dataFeed, vic, places, postcodes, population, trend, metro) {
-	console.log(metro)
+	console.log(dataFeed)
 	const container = d3.select("#vicCoronaMapContainer")
 	var isMobile;
 	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
@@ -67,7 +67,11 @@ function init(dataFeed, vic, places, postcodes, population, trend, metro) {
    		return Math.round(value/100)*100
 	}
 
-	var extent = [1,roundHundred(max)]
+	function roundTen(value) {
+   		return Math.round(value/10)*10
+	}
+
+	var extent = [1,100]
 
 	console.log(extent)
 
@@ -261,8 +265,8 @@ function init(dataFeed, vic, places, postcodes, population, trend, metro) {
 	        	}
 
 	        	else {
-	        		if (d.properties.change === "") {
-						return "#eaeaea"
+	        		if (d.properties.change === "" | d.properties.change === 0){
+    				return "#eaeaea"	
 					}
 
 		        	else {
@@ -553,9 +557,8 @@ function init(dataFeed, vic, places, postcodes, population, trend, metro) {
     	if (circlesOn) {
     		features.selectAll(".mapCircle").style("visibility", "hidden")
     		features.selectAll(".lga").attr("fill", d=> {
-    			if (d.properties.change === "") {
-    				return "#eaeaea"
-						
+    			if (d.properties.change === "" | d.properties.change === 0){
+    				return "#eaeaea"	
 					}
 
 		        	else {
@@ -636,7 +639,7 @@ function init(dataFeed, vic, places, postcodes, population, trend, metro) {
 
 
 Promise.all([
-		d3.json(`https://interactive.guim.co.uk/covidfeeds/victoria-month.json`),
+		d3.json(`https://interactive.guim.co.uk/2020/07/vic-corona-map/vicTotals.json`),
 		d3.json('<%= path %>/assets/vic-lga-2019.json'),
 		d3.json(`<%= path %>/assets/places_au.json`),
 		d3.json(`<%= path %>/assets/victoria.json`),
